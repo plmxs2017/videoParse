@@ -4,18 +4,77 @@ import requests
 from m3u8download_hecoter import m3u8download
 
 class _51ZXW:
-    def __init__(self,url,cookie=''):
-        print('init 运行')
+    def __init__(self,cookie=''):
+        if cookie != '':
+            print('cookie 初始化成功！')
         self.baseurl = 'https://www.51zxw.net'
 
         self.Cookie = cookie
         self.title = ''
-        self.url = url
+
         self.headers = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36 Edg/100.0.1185.39',
             'Cookie': self.Cookie,
             'Referer': 'https://www.51zxw.net',
         }
+
+    def spider(self,url):
+        if 'Show.aspx' in url:
+            self.run(url)
+        elif 'List.aspx' in url or 'list.aspx' in url:
+            infos = []
+            response = requests.get(url, headers=self.headers).text
+            cid = str(re.findall('cid: parseInt\("(\d+)"\)',response)[0])
+
+            getChaptersUrl = 'https://www.51zxw.net/MainExtend/AjaxGetChapters.ashx'
+            data = {
+                'cid':cid,
+                'pageIndex':'1'
+            }
+            chapters_response_data = requests.post(url=getChaptersUrl,data=data,headers=self.headers).json()['data']
+
+            Pages = int(chapters_response_data[0]['Pages'])
+            for fenye in range(1,Pages+1):
+                data = {
+                'cid':cid,
+                'pageIndex':str(fenye)
+            }
+                data_response = requests.post(url=getChaptersUrl,headers=self.headers,data=data).json()
+                datas = data_response['data']
+                for data_info in datas:
+                    if data_info['Source'] != None:
+                        info = {
+
+                            'Title':data_info['Title'],
+                            'play_url':f'https://www.51zxw.net/Show.aspx?cid={cid}&id={data_info["Articleid"]}'
+                        }
+                        infos.append(info)
+            infos = self.resume(infos)
+            for info in infos:
+                self.run(url=info['play_url'],title=info['Title'])
+    def resume(self, List1):
+        List2 = []
+        if List1 == []:
+            print('列表获取错误')
+            return
+        i = 0
+        for List in List1:
+            print("{:>3}  {:<25} {:<50}".format(i,List['Title'],List['play_url']))
+            # print('{:^8}'.format(i), List['Title'],List['play_url'])
+            i = i + 1
+        numbers = input('输入下载序列（① 5 ② 4-10 ③ 4 10）:')
+        if ' ' in numbers:
+            for number in numbers.split(' '):
+                number = int(number)
+                List2.append(List1[number])
+        elif '-' in numbers:
+            number = re.findall('\d+', numbers)
+            return List1[int(number[0]):int(number[1]) + 1]
+        else:
+            number = re.findall('\d+', numbers)
+            List2.append(List1[int(number[0])])
+            return List2
+        return List2
 
     def safe_base64_decode(self,data):
         try:
@@ -28,11 +87,15 @@ class _51ZXW:
             dedata = self.safe_base64_decode(data)
         return dedata
 
-    def run(self):
-        response = requests.get(url=self.url, headers=self.headers).text
-        self.title = re.findall('<meta name="keywords" content="(.+?)" />', response)[0]
-        videourl1 = self.baseurl + re.findall("website:(.+?)'", response)[0]
+    def run(self,url,title=None):
+        # url = 'https://www.51zxw.net/Show.aspx?cid=1037&id=120698'
+        response = requests.get(url=url, headers=self.headers).text
+        self.title = title
+        if self.title is None:
+            self.title = re.findall('<meta name="keywords" content="(.+?)" />', response)[0].replace(',我要自学网,视频教程', '')
 
+
+        videourl1 = self.baseurl + re.findall("website:(.+?)'", response)[0]
         response2 = json.loads(requests.get(videourl1, headers=self.headers).content.decode())
 
         videourl2 = response2['video'][0][0]
@@ -64,7 +127,13 @@ class _51ZXW:
         return newkey
 
 if __name__ == '__main__':
-    zxw = _51ZXW(url='https://www.51zxw.net/Show.aspx?cid=1049&id=120012',cookie='').run()
-
-
+    print('我要自学网视频下载器')
+    while True:
+        cookie = input('输入Cookie:')
+        zxw = _51ZXW(cookie=cookie)
+        url = input('输入解析链接：')
+        try:
+            zxw.spider(url=url)
+        except:
+            print('无权限观看，或未知错误')
 
