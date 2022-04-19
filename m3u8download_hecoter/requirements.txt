@@ -1,6 +1,0 @@
-m3u8
-pycryptodome
-tqdm
-retry
-signal
-future
