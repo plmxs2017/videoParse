@@ -5,8 +5,6 @@ from m3u8download_hecoter import m3u8download
 
 class _51ZXW:
     def __init__(self,cookie=''):
-        if cookie != '':
-            print('cookie 初始化成功！')
         self.baseurl = 'https://www.51zxw.net'
 
         self.Cookie = cookie
@@ -18,8 +16,33 @@ class _51ZXW:
             'Referer': 'https://www.51zxw.net',
         }
 
+    def login(self,username,password):
+        login_url = 'https://www.51zxw.net/login/NewLogin/AjaxForlogin'
+        url = 'https://www.51zxw.net/login'
+        session = requests.session()
+        response = session.get(url).text
+        __RequestVerificationToken = re.findall('"__RequestVerificationToken" type="hidden" value="(.+?)"', response)[0]
+        data = {
+            'loginStr':username,
+            'pwd':password,
+            '__RequestVerificationToken':__RequestVerificationToken,
+            'isRememberlogin':'false'
+        }
+        response2 = session.post(url=login_url,data=data)
+        login_info = response2.json()
+        msg = login_info['msg']
+        print(msg)
+
+        if login_info['success'] == True:
+            self.headers['Cookie'] = 'newsMember=' + response2.cookies.values()[0]
+            return True
+        else:
+            return False
+
+
+
     def spider(self,url):
-        if 'Show.aspx' in url:
+        if 'Show.aspx' in url or 'show.aspx' in url:
             self.run(url)
         elif 'List.aspx' in url or 'list.aspx' in url:
             infos = []
@@ -128,9 +151,15 @@ class _51ZXW:
 
 if __name__ == '__main__':
     print('我要自学网视频下载器')
+    print('支持链接格式：https://www.51zxw.net/show.aspx?id=113755&cid=988 https://www.51zxw.net/List.aspx?cid=988')
+    cookie = input('输入Cookie（或回车跳过输入账号密码）:')
+    zxw = _51ZXW(cookie=cookie)
+    if cookie == '':
+        username = input('输入账号：')
+        password = input('输入密码：')
+        zxw.login(username=username,password=password)
+
     while True:
-        cookie = input('输入Cookie:')
-        zxw = _51ZXW(cookie=cookie)
         url = input('输入解析链接：')
         try:
             zxw.spider(url=url)
