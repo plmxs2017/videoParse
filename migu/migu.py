@@ -29,15 +29,16 @@ def run(url):
     # url = 'https://www.miguvideo.com/mgs/website/prd/detail.html?cid=717417210'
     cid = re.findall('cid=(\d+)', url)[0]
     webapi_url = f'https://webapi.miguvideo.com/gateway/playurl/v3/play/playurl?contId={cid}&startPlay=true'
-
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 Edg/100.0.1185.44'
     }
 
     response = requests.get(url=webapi_url, headers=headers).json()
+
     content = response['body']['content']
     contName = content['contName']
-    contName = re.findall('《(.+?)》',contName)[0]
+    if '《' in contName:
+        contName = re.findall('《(.+?)》', contName)[0]
     subcollectionList = response['body']['content']['subcollectionList']
     if subcollectionList == []:
 
