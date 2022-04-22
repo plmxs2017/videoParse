@@ -3,4 +3,6 @@
 - [x] 555dy.fun
 - [x] 51zxw.net
 - [x] cokemv.me
+- [x] cctv.com
+- [x] miguvideo.com
 - [ ] 
