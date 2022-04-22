@@ -42,7 +42,7 @@ class Parser:
             return
         i = 0
         for List in List1:
-            print("{:>3}  {:<10} {:<50}".format(i,List['title'],List['m3u8url']))
+            print("{:>3}  {:<30} {:<10}{:<50}".format(i,List['title'],List['resolution'],List['m3u8url']))
             # print('{:^8}'.format(i), List['Title'],List['play_url'])
             i = i + 1
         numbers = input('输入下载序列（① 5 ② 4-10 ③ 4 10）:')
@@ -76,13 +76,25 @@ class Parser:
 
             print('检测到大师列表，构造链接……')
             playlists = m3u8obj.data['playlists']
+            # 央视视频高画质特殊处理
+            if self.base_uri_parse == 'https://hls.cntv.myhwcdn.cn':
+                _720_playlist = playlists[-1]
+                _1080_playlist = {'uri': '', 'stream_info': {'program_id': '', 'bandwidth': '', 'resolution': ''}}
+                _1080_playlist['uri'] = _720_playlist['uri'].replace('/1200','/2000')
+                _1080_playlist['stream_info']['resolution'] = '1920x1080'
+                playlists.append(_1080_playlist)
+
             for playlist in playlists:
                 info = {
                     'm3u8url':self.base_uri_parse + playlist['uri'] if playlist['uri'][:4] != 'http' else playlist['uri'],
                     'title':self.title +'_' + playlist['uri'].split('/')[-1].replace('.m3u8',''),
-                    'base_uri_parse':self.base_uri_parse
+                    'base_uri_parse':self.base_uri_parse,
+                    'resolution':playlist['stream_info']['resolution']
                 }
+
                 infos.append(info)
+
+
             # 视频之后的其他文件
             if m3u8obj.data['media'] != []:
                 medias = m3u8obj.data['media']
@@ -97,12 +109,12 @@ class Parser:
                     infos.append(info)
             infos = self.resume(infos)
             m3u8download_hecoter.m3u8download(infos)
+
             sys.exit(0)
 
         if 'key' in segments[0]:
             self.method, segments = decrypt.Decrypt(m3u8obj, self.temp_dir, method=self.method, key=self.key,
                                                     iv=self.iv).run()
-
         self.count = len(segments)
 
 
