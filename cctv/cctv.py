@@ -15,7 +15,7 @@ def get_info_url(url):
     }
     response = requests.get(url=url, headers=headers).content.decode('utf-8')
 
-    if 'tv.cctv.com' in url:
+    if 'v.cctv.com' in url:
         guid = re.findall('var guid = "(.+?)"', response)[0]
     elif 'webapp.cctv.com' in url:
         guid = re.findall('data-guid="(.+?)"',response)[0]
@@ -36,7 +36,6 @@ def get_info_url(url):
 
 def run(url):
     infourl = get_info_url(url)
-
     headers = {
         'user-agent': "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/100.0.4896.127"
     }
@@ -51,10 +50,7 @@ if __name__ == '__main__':
     while True:
         # url = 'https://tv.cctv.com/2022/04/20/VIDE7Ng1fymNZG5fNGKhXWsL220420.shtml?spm=C31267.PhFb97MzMZUk.EoLaAz312Pxz.1'
         url = input('输入央视频网址：')
-        try:
-            run(url)
-        except:
-            pass
+        run(url)
 
 ```
 
