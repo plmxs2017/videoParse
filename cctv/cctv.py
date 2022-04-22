@@ -1,6 +1,3 @@
-# 央视频解析下载
-
-```
 import re,hashlib
 import time
 import requests
@@ -51,12 +48,3 @@ if __name__ == '__main__':
         # url = 'https://tv.cctv.com/2022/04/20/VIDE7Ng1fymNZG5fNGKhXWsL220420.shtml?spm=C31267.PhFb97MzMZUk.EoLaAz312Pxz.1'
         url = input('输入央视频网址：')
         run(url)
-
-```
-
-https://github.com/hecoter/videoParse
-
-https://ghproxy.com/https://github.com/hecoter/videoParse/archive/refs/heads/main.zip
-
-
-
