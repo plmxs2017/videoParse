@@ -1,3 +1,6 @@
+# 央视频解析下载
+
+```
 import re,hashlib
 import time
 import requests
@@ -12,7 +15,12 @@ def get_info_url(url):
     }
     response = requests.get(url=url, headers=headers).content.decode('utf-8')
 
-    guid = re.findall('var guid = "(.+?)"', response)[0]
+    if 'tv.cctv.com' in url:
+        guid = re.findall('var guid = "(.+?)"', response)[0]
+    elif 'webapp.cctv.com' in url:
+        guid = re.findall('data-guid="(.+?)"',response)[0]
+    else:
+        guid = ''
 
     tai = 'ipad'
     client = 'html5'
@@ -36,11 +44,23 @@ def run(url):
     # video.chapters4[0].url  hls_url
     title = response['title']
     m3u8url = response['hls_url']
-    m3u8download(m3u8url=m3u8url,title=title,base_uri_parse='https://hls.cntv.myhwcdn.cn')
+    m3u8download(m3u8url=m3u8url,title=title,base_uri_parse='https://hls.cntv.myhwcdn.cn',headers=headers)
 
 if __name__ == '__main__':
-    print('央视频解析')
+    print('央视频解析: https://tv.cctv.com/2022/04/20/VIDE7Ng1fymNZG5fNGKhXWsL220420.shtml')
     while True:
         # url = 'https://tv.cctv.com/2022/04/20/VIDE7Ng1fymNZG5fNGKhXWsL220420.shtml?spm=C31267.PhFb97MzMZUk.EoLaAz312Pxz.1'
         url = input('输入央视频网址：')
-        run(url)
+        try:
+            run(url)
+        except:
+            pass
+
+```
+
+https://github.com/hecoter/videoParse
+
+https://ghproxy.com/https://github.com/hecoter/videoParse/archive/refs/heads/main.zip
+
+
+
