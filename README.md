@@ -5,4 +5,4 @@
 - [x] cokemv.me
 - [x] cctv.com
 - [x] miguvideo.com
-- [ ] 
+- [x] yangshipin.cn
