@@ -1,23 +1,27 @@
-
 import random
 import re
 import time
-import execjs
 import requests
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from m3u8download_hecoter import m3u8download
 
 def get_cKey_python(vid,tm,appVer,guid,platform):
+    def get_qn(Vn):
+        Jn = 0
+        for Mr in range(len(Vn)):
+            Xn = ord(Vn[Mr])
+            Jn = (Jn << 5) - Jn + Xn
+            Jn &= 0xFFFFFFFF
+        return Jn
+
     Kn = bytes.fromhex("4E2918885FD98109869D14E0231A0BF4") # 固定
     Wn = bytes.fromhex("16B17E519DDD0CE5B79D7A63A4DD801C") # 固定
 
     sr = "mg3c3b04ba" #固定
     Nn = "https://w.yangshipin.cn/"
     Fn = f"|{vid}|{tm}|{sr}|{appVer}|{guid}|{platform}|{Nn}|mozilla/5.0 (windows nt ||Mozilla|Netscape|Win32|"
-    jscode = """function get_qn(Vn){Jn=0;for(Mr=0;Mr<Vn.length;Mr++)Xn=Vn.charCodeAt(Mr),Jn=(Jn<<5)-Jn+Xn,Jn&=Jn;return Jn;}"""
-    ctx = execjs.compile(jscode)
-    qn = ctx.call('get_qn',Fn)
+    qn = get_qn(Fn)
     Yn = f"|{qn}" + Fn
     # print(Yn)
     cryptor = AES.new(key=Kn,mode=AES.MODE_CBC,iv=Wn)
